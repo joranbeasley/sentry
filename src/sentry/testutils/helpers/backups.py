@@ -41,6 +41,7 @@ from sentry.backup.helpers import Printer
 from sentry.backup.imports import import_in_global_scope
 from sentry.backup.scopes import ExportScope
 from sentry.backup.validate import validate
+from sentry.data_secrecy.models import DataSecrecyWaiver
 from sentry.db.models.paranoia import ParanoidModel
 from sentry.incidents.models.alert_rule import AlertRuleMonitorTypeInt
 from sentry.incidents.models.incident import (
@@ -60,7 +61,6 @@ from sentry.models.apiauthorization import ApiAuthorization
 from sentry.models.apigrant import ApiGrant
 from sentry.models.apikey import ApiKey
 from sentry.models.apitoken import ApiToken
-from sentry.models.authenticator import Authenticator
 from sentry.models.authidentity import AuthIdentity
 from sentry.models.authprovider import AuthProvider
 from sentry.models.counter import Counter
@@ -113,6 +113,7 @@ from sentry.testutils.factories import get_fixture_path
 from sentry.testutils.fixtures import Fixtures
 from sentry.testutils.silo import assume_test_silo_mode
 from sentry.types.token import AuthTokenType
+from sentry.users.models.authenticator import Authenticator
 from sentry.utils import json
 
 __all__ = [
@@ -616,6 +617,13 @@ class ExhaustiveFixtures(Fixtures):
                 group=group,
                 user_id=owner_id,
             )
+
+        # DataSecrecyWaiver
+        DataSecrecyWaiver.objects.create(
+            organization=org,
+            access_start=timezone.now(),
+            access_end=timezone.now() + timedelta(days=1),
+        )
 
         return org
 

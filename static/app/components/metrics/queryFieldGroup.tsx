@@ -1,3 +1,4 @@
+import type {Theme} from '@emotion/react';
 import {css, useTheme} from '@emotion/react';
 import styled from '@emotion/styled';
 
@@ -10,6 +11,7 @@ import {
   type SingleSelectProps,
 } from 'sentry/components/compactSelect';
 import {DebouncedInput as _DebouncedInput} from 'sentry/components/modals/metricWidgetViewerModal/queries';
+import {SearchQueryBuilder as _SearchQueryBuilder} from 'sentry/components/searchQueryBuilder';
 import _SmartSearchBar from 'sentry/components/smartSearchBar';
 import {Tooltip} from 'sentry/components/tooltip';
 import {SLOW_TOOLTIP_DELAY} from 'sentry/constants';
@@ -41,6 +43,7 @@ function CompactSelect<Value extends SelectKey>(
 
 function CompactSelect<Value extends SelectKey>({
   triggerProps,
+  className,
   ...props
 }: CompactSelectProps<Value>) {
   const theme = useTheme();
@@ -52,8 +55,11 @@ function CompactSelect<Value extends SelectKey>({
         className: 'tag-button',
       }}
       css={css`
+        width: 100%;
+
         .tag-button {
           border-radius: 0 ${theme.borderRadius} ${theme.borderRadius} 0;
+          width: 100%;
         }
 
         @media (min-width: ${theme.breakpoints.small}) {
@@ -65,15 +71,25 @@ function CompactSelect<Value extends SelectKey>({
           }
         }
       `}
+      className={className}
     />
   );
 }
 
-function DeleteButton({title, onClick}: {onClick: () => void; title: string}) {
+function DeleteButton({
+  title,
+  onClick,
+  disabled,
+}: {
+  onClick: () => void;
+  title: string;
+  disabled?: boolean;
+}) {
   return (
     <Tooltip title={title} delay={SLOW_TOOLTIP_DELAY}>
       <StyledButton
         icon={<IconDelete size="xs" />}
+        disabled={disabled}
         aria-label={title}
         onClick={onClick}
       />
@@ -97,21 +113,25 @@ const ComboBox = styled(_ComboBox)`
   :last-child input {
     border-radius: 0 ${p => p.theme.borderRadius} ${p => p.theme.borderRadius} 0;
   }
+`;
 
-  @media (min-width: ${p => p.theme.breakpoints.xxlarge}) {
-    max-width: min(500px, 100%);
+const searchCss = (theme: Theme) => css`
+  border-radius: 0;
+  :last-child {
+    border-radius: 0 ${theme.borderRadius} ${theme.borderRadius} 0;
+  }
+
+  label {
+    color: ${theme.gray500};
   }
 `;
 
 const SmartSearchBar = styled(_SmartSearchBar)`
-  border-radius: 0;
-  :last-child {
-    border-radius: 0 ${p => p.theme.borderRadius} ${p => p.theme.borderRadius} 0;
-  }
+  ${p => searchCss(p.theme)}
+`;
 
-  label {
-    color: ${p => p.theme.gray500};
-  }
+const SearchQueryBuilder = styled(_SearchQueryBuilder)`
+  ${p => searchCss(p.theme)}
 `;
 
 const FieldGroup = styled('div')`
@@ -123,6 +143,7 @@ const FieldGroup = styled('div')`
 
   > *:nth-child(even) {
     margin-left: -1px;
+    width: calc(100% + 1px);
   }
 
   @media (min-width: ${p => p.theme.breakpoints.small}) {
@@ -162,5 +183,6 @@ QueryFieldGroup.Label = Label;
 QueryFieldGroup.CompactSelect = CompactSelect;
 QueryFieldGroup.ComboBox = ComboBox;
 QueryFieldGroup.SmartSearchBar = SmartSearchBar;
+QueryFieldGroup.SearchQueryBuilder = SearchQueryBuilder;
 QueryFieldGroup.DebouncedInput = DebouncedInput;
 QueryFieldGroup.DeleteButton = DeleteButton;

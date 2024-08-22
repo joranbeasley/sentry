@@ -464,6 +464,7 @@ export function getAnalyticsDataForEvent(event?: Event | null): BaseEventAnalyti
     sdk_version: event?.sdk?.version,
     release_user_agent: event?.release?.userAgent,
     resolved_with: event?.resolvedWith ?? [],
+    mobile: isMobilePlatform(event?.platform),
     error_has_replay: Boolean(getReplayIdFromEvent(event)),
     error_has_user_feedback: defined(event?.userReport),
     has_otel: event?.contexts?.otel !== undefined,
@@ -525,9 +526,6 @@ export function getAnalyticsDataForGroup(group?: Group | null): CommonGroupAnaly
 export function eventIsProfilingIssue(event: BaseGroup | Event | GroupTombstoneHelper) {
   if (isTombstone(event) || isGroup(event)) {
     return false;
-  }
-  if (event.issueCategory === IssueCategory.PROFILE) {
-    return true;
   }
   const evidenceData = event.occurrence?.evidenceData ?? {};
   return evidenceData.templateName === 'profile';

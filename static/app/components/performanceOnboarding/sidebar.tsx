@@ -1,10 +1,9 @@
 import {Fragment, useEffect, useMemo, useState} from 'react';
 import styled from '@emotion/styled';
-import qs from 'qs';
 
 import HighlightTopRightPattern from 'sentry-images/pattern/highlight-top-right.svg';
 
-import {Button} from 'sentry/components/button';
+import {LinkButton} from 'sentry/components/button';
 import type {MenuItemProps} from 'sentry/components/dropdownMenu';
 import {DropdownMenu} from 'sentry/components/dropdownMenu';
 import IdBadge from 'sentry/components/idBadge';
@@ -25,6 +24,7 @@ import {space} from 'sentry/styles/space';
 import type {Project} from 'sentry/types/project';
 import EventWaiter from 'sentry/utils/eventWaiter';
 import useApi from 'sentry/utils/useApi';
+import {useLocation} from 'sentry/utils/useLocation';
 import useOrganization from 'sentry/utils/useOrganization';
 import usePrevious from 'sentry/utils/usePrevious';
 import useProjects from 'sentry/utils/useProjects';
@@ -48,7 +48,7 @@ function PerformanceOnboardingSidebar(props: CommonSidebarProps) {
   const isActive = currentPanel === SidebarPanelKey.PERFORMANCE_ONBOARDING;
   const organization = useOrganization();
   const hasProjectAccess = organization.access.includes('project:read');
-
+  const location = useLocation<{project: string[] | null}>();
   const {projects, initiallyLoaded: projectsLoaded} = useProjects();
 
   const [currentProject, setCurrentProject] = useState<Project | undefined>(undefined);
@@ -59,10 +59,9 @@ function PerformanceOnboardingSidebar(props: CommonSidebarProps) {
     filterProjects(projects);
 
   const priorityProjectIds: Set<string> | null = useMemo(() => {
-    const queryParams = qs.parse(location.search);
-    const decodedProjectIds = decodeProjectIds(queryParams.project);
+    const decodedProjectIds = decodeProjectIds(location.query.project);
     return decodedProjectIds === null ? null : new Set(decodedProjectIds);
-  }, []);
+  }, [location.query.project]);
 
   useEffect(() => {
     if (
@@ -233,9 +232,9 @@ function OnboardingContent({currentProject}: {currentProject: Project}) {
           )}
         </div>
         <div>
-          <Button size="sm" href="https://docs.sentry.io/platforms/" external>
+          <LinkButton size="sm" href="https://docs.sentry.io/platforms/" external>
             {t('Go to Sentry Documentation')}
-          </Button>
+          </LinkButton>
         </div>
       </Fragment>
     );
@@ -251,13 +250,13 @@ function OnboardingContent({currentProject}: {currentProject: Project}) {
           )}
         </div>
         <div>
-          <Button
+          <LinkButton
             size="sm"
             href="https://docs.sentry.io/product/performance/getting-started/"
             external
           >
             {t('Go to documentation')}
-          </Button>
+          </LinkButton>
         </div>
       </Fragment>
     );
